@@ -1,0 +1,58 @@
+# ─── Credentials & Secrets ────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+google-key.json
+*-service-account.json
+
+# ─── Dependencies ─────────────────────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+
+# ─── Build Outputs ────────────────────────────────────────────────────────────
+dist/
+build/
+out/
+.next/
+.nuxt/
+.output/
+
+# ─── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+pino.log
+
+# ─── Expo / React Native ──────────────────────────────────────────────────────
+.expo/
+.expo-shared/
+android/
+ios/
+*.jks
+*.keystore
+*.p8
+*.p12
+*.mobileprovision
+
+# ─── Test & Coverage ──────────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ─── OS ───────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ─── IDE ──────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ─── Misc ─────────────────────────────────────────────────────────────────────
+.cache/
+tmp/
+*.tmp

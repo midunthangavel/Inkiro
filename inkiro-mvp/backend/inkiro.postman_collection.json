@@ -1,0 +1,416 @@
+{
+  "info": {
+    "name": "Inkiro MVP",
+    "description": "Hyperlocal grocery delivery — Coimbatore, Tamil Nadu. Seed data uses phone 9876540001/02/03, OTP 123456.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url",         "value": "http://localhost:3000/api/v1" },
+    { "key": "admin_key",        "value": "change-me-in-production" },
+    { "key": "customer_phone",   "value": "9876540001" },
+    { "key": "shop_user_phone",  "value": "9876540002" },
+    { "key": "runner_phone",     "value": "9876540003" },
+    { "key": "shop_id",          "value": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa" },
+    { "key": "runner_id",        "value": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb" },
+    { "key": "order_id",         "value": "cccccccc-cccc-4ccc-8ccc-cccccccccccc" },
+    { "key": "otp_dev",          "value": "123456" },
+    { "key": "customer_token",   "value": "" },
+    { "key": "shop_token",       "value": "" },
+    { "key": "runner_token",     "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/health", "host": ["{{base_url}}"], "path": ["health"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Send OTP — Customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.dev_otp) pm.collectionVariables.set('otp_dev', json.dev_otp);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/send-otp", "host": ["{{base_url}}"], "path": ["auth", "send-otp"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{customer_phone}}\",\n  \"role\": \"customer\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Send OTP — Shop",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/send-otp", "host": ["{{base_url}}"], "path": ["auth", "send-otp"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{shop_user_phone}}\",\n  \"role\": \"shop\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Send OTP — Runner",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/send-otp", "host": ["{{base_url}}"], "path": ["auth", "send-otp"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{runner_phone}}\",\n  \"role\": \"runner\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify OTP — Customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.token) pm.collectionVariables.set('customer_token', json.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/verify-otp", "host": ["{{base_url}}"], "path": ["auth", "verify-otp"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{customer_phone}}\",\n  \"code\": \"{{otp_dev}}\",\n  \"role\": \"customer\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Register Push Token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/register-push-token", "host": ["{{base_url}}"], "path": ["auth", "register-push-token"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"11111111-1111-4111-8111-111111111111\",\n  \"token\": \"ExponentPushToken[xxxxxxxxxxxxxxxxxxxx]\",\n  \"role\": \"customer\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "POST /orders/parse-voice",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/orders/parse-voice", "host": ["{{base_url}}"], "path": ["orders", "parse-voice"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"audio_base64\": \"<base64-encoded-audio>\",\n  \"language\": \"ta-IN\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /orders/confirm",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.order_id) pm.collectionVariables.set('order_id', json.order_id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/orders/confirm", "host": ["{{base_url}}"], "path": ["orders", "confirm"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_phone\": \"{{customer_phone}}\",\n  \"items\": [\n    { \"name\": \"Toor Dal\",    \"quantity\": 1, \"unit\": \"kg\",    \"estimated_price_rupees\": 120 },\n    { \"name\": \"Rice\",        \"quantity\": 2, \"unit\": \"kg\",    \"estimated_price_rupees\": 60  },\n    { \"name\": \"Coconut Oil\", \"quantity\": 1, \"unit\": \"litre\", \"estimated_price_rupees\": 180 }\n  ],\n  \"address\": \"42, RS Puram, Coimbatore - 641002\",\n  \"lat\": 11.0120,\n  \"lng\": 76.9480\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /orders/:id/shop-respond — Accept",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/orders/{{order_id}}/shop-respond", "host": ["{{base_url}}"], "path": ["orders", "{{order_id}}", "shop-respond"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"accept\",\n  \"shop_id\": \"{{shop_id}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /orders/:id/shop-respond — Reject",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/orders/{{order_id}}/shop-respond", "host": ["{{base_url}}"], "path": ["orders", "{{order_id}}", "shop-respond"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"decline\",\n  \"shop_id\": \"{{shop_id}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET /orders/customer/phone/:phone",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/orders/customer/phone/{{customer_phone}}", "host": ["{{base_url}}"], "path": ["orders", "customer", "phone", "{{customer_phone}}"] }
+          }
+        },
+        {
+          "name": "GET /orders/:id/status",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/orders/{{order_id}}/status", "host": ["{{base_url}}"], "path": ["orders", "{{order_id}}", "status"] }
+          }
+        },
+        {
+          "name": "GET /orders/:id",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/orders/{{order_id}}", "host": ["{{base_url}}"], "path": ["orders", "{{order_id}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Shops",
+      "item": [
+        {
+          "name": "POST /shops/register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.shop && json.shop.id) pm.collectionVariables.set('shop_id', json.shop.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/shops/register", "host": ["{{base_url}}"], "path": ["shops", "register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"22222222-2222-4222-8222-222222222222\",\n  \"shop_name\": \"Ravi Provision Store\",\n  \"address\": \"15, Gandhi Nagar, Gandhipuram, Coimbatore - 641012\",\n  \"lat\": 11.0168,\n  \"lng\": 76.9558\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /shops/respond",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/shops/respond", "host": ["{{base_url}}"], "path": ["shops", "respond"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{order_id}}\",\n  \"shop_id\": \"{{shop_id}}\",\n  \"action\": \"accept\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET /shops/:shopId/orders",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/shops/{{shop_id}}/orders?status=accepted",
+              "host": ["{{base_url}}"],
+              "path": ["shops", "{{shop_id}}", "orders"],
+              "query": [{ "key": "status", "value": "accepted" }]
+            }
+          }
+        },
+        {
+          "name": "GET /shops/:shopId",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/shops/{{shop_id}}", "host": ["{{base_url}}"], "path": ["shops", "{{shop_id}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Runners",
+      "item": [
+        {
+          "name": "POST /runners/accept-job",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/runners/accept-job", "host": ["{{base_url}}"], "path": ["runners", "accept-job"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"runner_id\": \"{{runner_id}}\",\n  \"order_id\": \"{{order_id}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /runners/update-status — picked_up",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/runners/update-status", "host": ["{{base_url}}"], "path": ["runners", "update-status"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"runner_id\": \"{{runner_id}}\",\n  \"order_id\": \"{{order_id}}\",\n  \"status\": \"picked_up\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /runners/update-status — delivered",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/runners/update-status", "host": ["{{base_url}}"], "path": ["runners", "update-status"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"runner_id\": \"{{runner_id}}\",\n  \"order_id\": \"{{order_id}}\",\n  \"status\": \"delivered\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /runners/update-location",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/runners/update-location", "host": ["{{base_url}}"], "path": ["runners", "update-location"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"runner_id\": \"{{runner_id}}\",\n  \"lat\": 11.0175,\n  \"lng\": 76.9565,\n  \"is_available\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /runners/update-profile",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/runners/update-profile", "host": ["{{base_url}}"], "path": ["runners", "update-profile"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"runner_id\": \"{{runner_id}}\",\n  \"vehicle_type\": \"bike\",\n  \"upi_id\": \"murugan@upi\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET /runners/:runnerId/active-order",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/runners/{{runner_id}}/active-order", "host": ["{{base_url}}"], "path": ["runners", "{{runner_id}}", "active-order"] }
+          }
+        },
+        {
+          "name": "GET /runners/:runnerId/earnings",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/runners/{{runner_id}}/earnings", "host": ["{{base_url}}"], "path": ["runners", "{{runner_id}}", "earnings"] }
+          }
+        },
+        {
+          "name": "GET /runners/:runnerId",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/runners/{{runner_id}}", "host": ["{{base_url}}"], "path": ["runners", "{{runner_id}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "GET /admin/dashboard",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Admin-Key", "value": "{{admin_key}}" }],
+            "url": { "raw": "{{base_url}}/admin/dashboard", "host": ["{{base_url}}"], "path": ["admin", "dashboard"] }
+          }
+        },
+        {
+          "name": "POST /admin/assign-runner",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Admin-Key",  "value": "{{admin_key}}" }
+            ],
+            "url": { "raw": "{{base_url}}/admin/assign-runner", "host": ["{{base_url}}"], "path": ["admin", "assign-runner"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"{{order_id}}\",\n  \"runner_id\": \"{{runner_id}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET /admin/orders",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Admin-Key", "value": "{{admin_key}}" }],
+            "url": {
+              "raw": "{{base_url}}/admin/orders?status=pending&limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "orders"],
+              "query": [
+                { "key": "status", "value": "pending" },
+                { "key": "limit",  "value": "50" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /admin/shops",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Admin-Key", "value": "{{admin_key}}" }],
+            "url": { "raw": "{{base_url}}/admin/shops", "host": ["{{base_url}}"], "path": ["admin", "shops"] }
+          }
+        },
+        {
+          "name": "GET /admin/runners",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Admin-Key", "value": "{{admin_key}}" }],
+            "url": { "raw": "{{base_url}}/admin/runners", "host": ["{{base_url}}"], "path": ["admin", "runners"] }
+          }
+        }
+      ]
+    }
+  ]
+}
