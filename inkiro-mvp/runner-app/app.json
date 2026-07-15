@@ -1,0 +1,70 @@
+{
+  "expo": {
+    "name": "Inkiro Runner",
+    "slug": "inkiro-runner",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "scheme": "inkiro-runner",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.inkiro.runner",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Inkiro needs your location to show you nearby orders.",
+        "NSLocationAlwaysUsageDescription": "Inkiro needs background location to update your position while delivering.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Inkiro needs background location to update your position while delivering."
+      }
+    },
+    "android": {
+      "package": "com.inkiro.runner",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#16a34a"
+      },
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "RECEIVE_BOOT_COMPLETED"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": ""
+        }
+      }
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#16a34a",
+          "sounds": []
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Inkiro needs background location to update your position while delivering."
+        }
+      ],
+      "expo-font",
+      "expo-secure-store"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "608b75b5-23cd-49f1-a3d5-55aaa08001be"
+      },
+      "mapboxToken": "MAPBOX_TOKEN_HERE"
+    }
+  }
+}
