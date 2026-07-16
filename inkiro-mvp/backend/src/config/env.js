@@ -124,6 +124,7 @@ const env = {
 
   SUPABASE_SERVICE_ROLE_KEY: requireStr('SUPABASE_SERVICE_ROLE_KEY', {
     minLength: 20,
+    default: process.env.SUPABASE_SECRET_KEY,
   }),
 
   // ── Gemini ───────────────────────────────────────────────────────────────────

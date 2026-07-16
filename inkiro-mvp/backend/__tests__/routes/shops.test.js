@@ -157,7 +157,7 @@ describe('shop routes — IDOR resistance', () => {
       .send({ action: 'accept', shop_id: UUID_B_SHP });
 
     expect(res.status).toBe(200);
-    expect(orderService.shopRespond).toHaveBeenCalledWith(ORDER_ID, UUID_A_SHP, 'accept');
+    expect(orderService.shopRespond).toHaveBeenCalledWith(ORDER_ID, UUID_A_SHP, 'accept', undefined);
   });
 
   test('POST /orders/:id/shop-respond — decline path still works without body shop_id', async () => {
@@ -171,7 +171,7 @@ describe('shop routes — IDOR resistance', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.message).toBe('Order declined');
-    expect(orderService.shopRespond).toHaveBeenCalledWith(ORDER_ID, UUID_A_SHP, 'decline');
+    expect(orderService.shopRespond).toHaveBeenCalledWith(ORDER_ID, UUID_A_SHP, 'decline', undefined);
   });
 });
 

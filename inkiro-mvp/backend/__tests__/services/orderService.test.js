@@ -167,7 +167,7 @@ describe('shopRespond()', () => {
 
     expect(notifySvc.notifyCustomer).toHaveBeenCalledWith(
       CUSTOMER_ID,
-      'Order Accepted',
+      '✅ Order Accepted',
       expect.any(String),
       expect.objectContaining({ order_id: 'order-1' }),
     );

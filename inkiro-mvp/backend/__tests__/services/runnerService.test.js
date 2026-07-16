@@ -121,8 +121,12 @@ describe('updateStatus', () => {
     const result = await updateStatus(RUNNER_ID, ORDER_ID, 'picked_up');
     expect(result.status).toBe('picked_up');
     expect(emitToShop).toHaveBeenCalledWith('shop-1', 'order:picked_up', { order_id: ORDER_ID });
-    // Delivered-only branches must NOT fire on picked_up:
-    expect(notifySvc.notifyCustomer).not.toHaveBeenCalled();
+    expect(notifySvc.notifyCustomer).toHaveBeenCalledWith(
+      'cust-1',
+      '🛵 Order Picked Up',
+      'Runner is on the way to your location!',
+      { order_id: ORDER_ID }
+    );
     expect(db.from).not.toHaveBeenCalled(); // settlement writes use `db`, not `anonDb`
   });
 
@@ -137,7 +141,8 @@ describe('updateStatus', () => {
       .mockReturnValueOnce(makeChain({ data: { ...baseOrder, status: 'delivered' }, error: null })) // update order
       .mockReturnValueOnce(makeChain({ data: null, error: null }))   // runners is_available=true
       .mockReturnValueOnce(makeChain({ data: { total_earnings: 12000 }, error: null })) // fetch total
-      .mockReturnValueOnce(makeChain({ data: null, error: null }));  // update total_earnings
+      .mockReturnValueOnce(makeChain({ data: null, error: null }))  // update total_earnings
+      .mockReturnValueOnce(makeChain({ data: null, error: null })); // streak / XP update
 
     // Settlement INSERT uses the service-role `db` client
     db.from.mockReturnValueOnce(makeChain({ data: null, error: null }));
@@ -294,7 +299,8 @@ describe('getEarnings', () => {
     anonDb.from
       .mockReturnValueOnce(makeChain({ data: null, error: { message: 'down' } })) // runners
       .mockReturnValueOnce(makeChain({ data: [],   error: null }))                 // today rows
-      .mockReturnValueOnce(makeChain({ count: 0,   error: null }));                // all-time count
+      .mockReturnValueOnce(makeChain({ count: 0,   error: null }))                 // all-time count
+      .mockReturnValueOnce(makeChain({ data: [],   error: null }));                // week rows
     await expect(getEarnings(RUNNER_ID)).rejects.toBeTruthy();
   });
 
@@ -308,7 +314,8 @@ describe('getEarnings', () => {
         ],
         error: null,
       }))                                                                               // today rows
-      .mockReturnValueOnce(makeChain({ count: 12, error: null }));                      // all-time count
+      .mockReturnValueOnce(makeChain({ count: 12, error: null }))                      // all-time count
+      .mockReturnValueOnce(makeChain({ data: [],   error: null }));                     // week rows
 
     const res = await getEarnings(RUNNER_ID);
     expect(res).toEqual({
@@ -316,6 +323,15 @@ describe('getEarnings', () => {
       total_earnings:  15000,
       today_orders:    2,
       all_time_orders: 12,
+      daily: [
+        { earnings_paise: 0 },
+        { earnings_paise: 0 },
+        { earnings_paise: 0 },
+        { earnings_paise: 0 },
+        { earnings_paise: 0 },
+        { earnings_paise: 0 },
+        { earnings_paise: 0 },
+      ],
     });
   });
 
@@ -323,7 +339,8 @@ describe('getEarnings', () => {
     anonDb.from
       .mockReturnValueOnce(makeChain({ data: null, error: null }))  // no row, no error
       .mockReturnValueOnce(makeChain({ data: [],   error: null }))
-      .mockReturnValueOnce(makeChain({ count: 0,   error: null }));
+      .mockReturnValueOnce(makeChain({ count: 0,   error: null }))
+      .mockReturnValueOnce(makeChain({ data: [],   error: null })); // week rows
 
     const res = await getEarnings(RUNNER_ID);
     expect(res).toEqual({
@@ -331,6 +348,15 @@ describe('getEarnings', () => {
       total_earnings:  0,
       today_orders:    0,
       all_time_orders: 0,
+      daily: [
+        { earnings_paise: 0 },
+        { earnings_paise: 0 },
+        { earnings_paise: 0 },
+        { earnings_paise: 0 },
+        { earnings_paise: 0 },
+        { earnings_paise: 0 },
+        { earnings_paise: 0 },
+      ],
     });
   });
 });

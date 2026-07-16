@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
+    "@supabase/server": "^1.4.0",
     "@supabase/supabase-js": "^2.49.4",
     "axios": "^1.7.9",
     "cors": "^2.8.5",

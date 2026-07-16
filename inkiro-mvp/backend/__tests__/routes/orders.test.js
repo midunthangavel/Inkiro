@@ -16,6 +16,7 @@ jest.mock('../../src/services/orderService', () => ({
   shopRespond:          jest.fn(),
   listOrdersByCustomer: jest.fn(),
   getOrderById:         jest.fn(),
+  getOrderByIdForUser:  jest.fn(),
   markReady:            jest.fn(),
   rateOrder:            jest.fn(),
   adminAssignRunner:    jest.fn(),
@@ -308,7 +309,7 @@ describe('GET /orders/:id', () => {
   beforeEach(() => { app = buildApp(); jest.clearAllMocks(); });
 
   test('200 — any authenticated role can fetch an order', async () => {
-    orderService.getOrderById.mockResolvedValueOnce({ id: ORDER_ID, status: 'pending' });
+    orderService.getOrderByIdForUser.mockResolvedValueOnce({ id: ORDER_ID, status: 'pending' });
     const res = await request(app)
       .get(`/orders/${ORDER_ID}`)
       .set('Authorization', `Bearer ${signCustomer()}`);
